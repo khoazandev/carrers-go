@@ -1,0 +1,17 @@
+{
+  "frontend": {
+    "Zustand Global State": "create\\s*\\(.*set",
+    "Redux Architecture": "createSlice|configureStore",
+    "Pinia State Management": "defineStore",
+    "React UI Re-render Optimization": "useMemo\\(|useCallback\\(|React\\.memo",
+    "Axios Auth Interceptors": "interceptors\\.(request|response)\\.use|axios\\.create"
+  },
+  "backend": {
+    "Express Advanced Routing": "express\\.Router",
+    "NestJS Dependency Injection": "@Injectable\\(|@Module\\(",
+    "JWT Authentication Workflow": "jwt\\.sign|jwt\\.verify"
+  },
+  "testing": {
+    "Automated Testing Patterns": "(describe|it)\\("
+  }
+}

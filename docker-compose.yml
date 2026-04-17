@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  career-ops:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: santifer/career-ops:latest
+    container_name: career-ops-cli
+    volumes:
+      - .:/app
+    # Để shell mở chờ lệnh
+    entrypoint: ["tail", "-f", "/dev/null"]
+    environment:
+      - NODE_ENV=development

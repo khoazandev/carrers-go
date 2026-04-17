@@ -1,0 +1,75 @@
+@reference "../index.css";
+
+.notifications-page-container {
+  @apply max-w-[800px] mx-auto w-full;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.notifications-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.notifications-header h1 {
+  @apply text-2xl font-bold text-[#1C252E] dark:text-white tracking-tight;
+}
+
+.notifications-list {
+  @apply flex flex-col gap-3;
+}
+
+.notification-card {
+  @apply p-4 md:p-5 rounded-2xl bg-white dark:bg-[#1C252E] border border-[rgba(145,158,171,0.2)] shadow-sm transition-all duration-300 relative overflow-hidden;
+}
+
+.notification-card:hover {
+  @apply shadow-md border-[rgba(145,158,171,0.32)];
+  transform: translateY(-2px);
+}
+
+.notification-card.unread {
+  @apply bg-[#F4F6F8] dark:bg-[rgba(145,158,171,0.08)];
+}
+
+.notification-card.unread::before {
+  content: '';
+  @apply absolute left-0 top-0 bottom-0 w-1 bg-[#22c55e];
+}
+
+.notification-icon-wrapper {
+  @apply w-10 h-10 rounded-full flex items-center justify-center shrink-0;
+}
+
+.notification-icon-wrapper.application_received {
+  @apply bg-[#22c55e]/10 text-[#22c55e];
+}
+
+.notification-icon-wrapper.status_changed {
+  @apply bg-[#00B8D9]/10 text-[#00B8D9];
+}
+
+.notification-icon-wrapper.default {
+  @apply bg-[#637381]/10 text-[#637381] dark:text-[#919EAB];
+}
+
+.notification-content h4 {
+  @apply text-[15px] font-semibold text-[#1C252E] dark:text-white mb-1;
+}
+
+.notification-content p {
+  @apply text-sm text-[#637381] dark:text-[#919EAB] leading-relaxed;
+}
+
+.notification-time {
+  @apply text-xs text-[#919EAB] mt-2 block font-medium;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
