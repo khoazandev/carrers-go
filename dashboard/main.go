@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
@@ -106,20 +107,11 @@ func (m appModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case screens.PipelineOpenURLMsg:
-		url := msg.URL
+		rawURL := msg.URL
 		return m, func() tea.Msg {
-			var cmd *exec.Cmd
-			switch runtime.GOOS {
-			case "darwin":
-				cmd = exec.Command("open", url)
-			case "linux":
-				cmd = exec.Command("xdg-open", url)
-			case "windows":
-				cmd = exec.Command("cmd", "/c", "start", "", url)
-			default:
-				cmd = exec.Command("xdg-open", url)
+			if err := openExternalURL(rawURL); err != nil {
+				fmt.Fprintf(os.Stderr, "WARN: open URL failed: %v\n", err)
 			}
-			_ = cmd.Run()
 			return nil
 		}
 
@@ -138,6 +130,32 @@ func (m appModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.pipeline = pm
 		return m, cmd
 	}
+}
+
+func openExternalURL(rawURL string) error {
+	parsed, err := url.ParseRequestURI(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return fmt.Errorf("unsupported URL scheme %q", parsed.Scheme)
+	}
+
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", rawURL)
+	case "linux":
+		cmd = exec.Command("xdg-open", rawURL)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", rawURL)
+	default:
+		cmd = exec.Command("xdg-open", rawURL)
+	}
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("launch browser: %w", err)
+	}
+	return nil
 }
 
 func (m appModel) View() string {

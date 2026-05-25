@@ -556,10 +556,13 @@ func UpdateApplicationStatus(careerOpsPath string, app model.CareerApplication, 
 		if !strings.HasPrefix(strings.TrimSpace(line), "|") {
 			continue
 		}
-		// Match by report number
 		if app.ReportNumber != "" && strings.Contains(line, fmt.Sprintf("[%s]", app.ReportNumber)) {
-			// Replace the status field
-			lines[i] = replaceStatusInLine(line, app.Status, newStatus)
+			fields, ok := splitMarkdownRow(line)
+			if !ok || len(fields) <= 5 {
+				return fmt.Errorf("malformed application row for report %s", app.ReportNumber)
+			}
+			fields[5] = newStatus
+			lines[i] = joinMarkdownRow(fields)
 			found = true
 			break
 		}
@@ -572,10 +575,22 @@ func UpdateApplicationStatus(careerOpsPath string, app model.CareerApplication, 
 	return os.WriteFile(filePath, []byte(strings.Join(lines, "\n")), 0644)
 }
 
-// replaceStatusInLine replaces the old status with new status in a table line.
-func replaceStatusInLine(line, oldStatus, newStatus string) string {
-	// Case-insensitive replacement of the status field
-	return strings.Replace(line, oldStatus, newStatus, 1)
+func splitMarkdownRow(line string) ([]string, bool) {
+	trimmed := strings.TrimSpace(line)
+	if !strings.HasPrefix(trimmed, "|") || strings.HasPrefix(trimmed, "|---") || strings.HasPrefix(trimmed, "| #") {
+		return nil, false
+	}
+	trimmed = strings.Trim(trimmed, "|")
+	parts := strings.Split(trimmed, "|")
+	fields := make([]string, 0, len(parts))
+	for _, part := range parts {
+		fields = append(fields, strings.TrimSpace(part))
+	}
+	return fields, true
+}
+
+func joinMarkdownRow(fields []string) string {
+	return "| " + strings.Join(fields, " | ") + " |"
 }
 
 // cleanTableCell removes trailing pipes and whitespace from a table cell value.

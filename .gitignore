@@ -24,6 +24,11 @@ modes/_profile.md
 
 # Generated
 .resolved-prompt-*
+.gocache/
+.tmp/
+data/scan-cache.json
+data/candidate-profile.json
+data/developer-profile.json
 node_modules/
 bun.lock
 

@@ -23,21 +23,18 @@ func RenderCV(markdownPath string, outPath string) error {
 	md := goldmark.New(
 		goldmark.WithExtensions(extension.GFM),
 		goldmark.WithParserOptions(parser.WithAutoHeadingID()),
-		goldmark.WithRendererOptions(html.WithHardWraps(), html.WithUnsafe()),
+		goldmark.WithRendererOptions(html.WithHardWraps()),
 	)
 
-	// 1. AST Traversal (Replacing `marked` parser from Node.js)
 	doc := md.Parser().Parse(text.NewReader(source))
-	
-	// Example AST walk to find Headers and construct dynamic sections
 	err = ast.Walk(doc, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering {
 			switch n.Kind() {
 			case ast.KindHeading:
 				heading := n.(*ast.Heading)
-				fmt.Printf("Found Section: Level %d\n", heading.Level)
+				fmt.Printf("Found section: level %d\n", heading.Level)
 			case ast.KindList:
-				fmt.Println("Found List block")
+				fmt.Println("Found list block")
 			}
 		}
 		return ast.WalkContinue, nil
@@ -46,16 +43,15 @@ func RenderCV(markdownPath string, outPath string) error {
 		return err
 	}
 
-	// 2. HTML Generation
 	var buf bytes.Buffer
 	buf.WriteString("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<title>CV</title>\n</head>\n<body>\n")
-	
+
 	if err := md.Convert(source, &buf); err != nil {
 		return err
 	}
-	
+
 	buf.WriteString("\n</body>\n</html>")
 
-	fmt.Printf("✅ Rendered CV HTML to %s\n", outPath)
+	fmt.Printf("Rendered CV HTML to %s\n", outPath)
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
 }

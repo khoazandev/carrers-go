@@ -1,20 +1,25 @@
-FROM node:20-alpine
+FROM golang:1.26.2-alpine AS build
 
-# Cài đặt git và một số tool cơ bản cần thiết cho Github analyzer
 RUN apk add --no-cache git
 
-WORKDIR /app
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Copy các file package
-COPY package.json package-lock.json* ./
-
-# Cài đặt production dependencies (gồm Playwright browsers nếu cần)
-RUN npm ci --only=production
-RUN npx playwright install --with-deps chromium
-
-# Copy toàn bộ mã nguồn
 COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/career-ops .
 
-# Expose nếu có tool command nào mở web UI (hiện tại CLI-only, không yêu cầu expose)
-# ENTRYPOINT mặc định cho CLI
-ENTRYPOINT ["node", "cli.mjs"]
+FROM alpine:3.21
+
+RUN apk add --no-cache ca-certificates chromium git \
+	&& addgroup -S app \
+	&& adduser -S app -G app
+
+ENV HOME=/tmp
+ENV ROD_BROWSER_BIN=/usr/bin/chromium-browser
+
+WORKDIR /workspace
+COPY --from=build /out/career-ops /usr/local/bin/career-ops
+
+USER app
+ENTRYPOINT ["career-ops"]

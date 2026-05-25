@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/khoazandev/career-ops/internal/tracker"
 	"github.com/spf13/cobra"
 )
@@ -15,12 +14,9 @@ var trackerDedupCmd = &cobra.Command{
 	Use:   "dedup [tracker_file_path]",
 	Short: "Remove duplicate entries from the applications tracker",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		dryRun, _ := cmd.Flags().GetBool("dry-run")
-		err := tracker.DedupTracker(args[0], dryRun)
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
+		return tracker.DedupTracker(args[0], dryRun)
 	},
 }
 

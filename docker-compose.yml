@@ -1,15 +1,12 @@
-version: '3.8'
-
 services:
   career-ops:
     build:
       context: .
       dockerfile: Dockerfile
-    image: santifer/career-ops:latest
-    container_name: career-ops-cli
+    image: career-ops:local
+    working_dir: /workspace
     volumes:
-      - .:/app
-    # Để shell mở chờ lệnh
-    entrypoint: ["tail", "-f", "/dev/null"]
+      - .:/workspace
     environment:
-      - NODE_ENV=development
+      ROD_BROWSER_BIN: /usr/bin/chromium-browser
+    command: ["--help"]
